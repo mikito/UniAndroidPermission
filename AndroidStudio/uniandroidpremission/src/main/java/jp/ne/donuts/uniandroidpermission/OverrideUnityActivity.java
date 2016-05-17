@@ -2,9 +2,9 @@ package jp.ne.donuts.uniandroidpermission;
 
 import android.content.pm.PackageManager;
 import com.unity3d.player.UnityPlayer;
-import com.unity3d.player.UnityPlayerActivity;
+import com.unity3d.player.UnityPlayerNativeActivity;
 
-public class OverrideUnityActivity extends UnityPlayerActivity {
+public class OverrideUnityActivity extends UnityPlayerNativeActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
