@@ -15,21 +15,16 @@ public class UniAndroidPermission : MonoBehaviour {
     }
 
     public static bool IsPermitted(AndroidPermission permission){
-#if UNITY_EDITOR
-        Debug.LogWarning("UniAndroidPermission works only Androud Devices.");
-        return true;
-#elif UNITY_ANDROID
+#if !UNITY_EDITOR
         AndroidJavaClass permissionManager = new AndroidJavaClass (PackageClassName);
         return permissionManager.CallStatic<bool> ("hasPermission", GetPermittionStr(permission));
-#endif
+#else        
         return true;
+#endif
     }
 
     public static void RequestPremission(AndroidPermission permission, Action onPermit = null, Action notPermit = null){
-#if UNITY_EDITOR
-        Debug.LogWarning("UniAndroidPermission works only Androud Devices.");
-        return;
-#elif UNITY_ANDROID
+#if !UNITY_EDITOR
         AndroidJavaClass permissionManager = new AndroidJavaClass (PackageClassName);
         permissionManager.CallStatic("requestPermission", GetPermittionStr(permission));
         permitCallBack = onPermit;

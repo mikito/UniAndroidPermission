@@ -7,6 +7,7 @@ public class SampleScript : MonoBehaviour {
     [SerializeField] Text text;
 
     public void RequestPermission(){
+#if UNITY_ANDROID        
         if (UniAndroidPermission.IsPermitted (AndroidPermission.WRITE_EXTERNAL_STORAGE)) {
             text.text = "WRITE_EXTERNAL_STORAGE is already permitted!!";
             return;
@@ -17,5 +18,6 @@ public class SampleScript : MonoBehaviour {
         }, () => {
             text.text = "WRITE_EXTERNAL_STORAGE id NOT permitted...";
         });
+#endif        
     }
 }
