@@ -4,55 +4,77 @@ using System.Collections;
 
 #if UNITY_ANDROID
 public class UniAndroidPermission : MonoBehaviour {
-
-    private static Action permitCallBack;
-    private static Action notPermitCallBack;
     const string PackageClassName = "jp.ne.donuts.uniandroidpermission.PermissionManager";
+    static UniAndroidPermission instance;
+    Action permitCallBack;
+    Action notPermitCallBack;
     AndroidJavaClass permissionManager;
 
     void Awake(){
         DontDestroyOnLoad (gameObject);
+        permissionManager = new AndroidJavaClass (PackageClassName);
     }
 
-    public static bool IsPermitted(AndroidPermission permission){
-#if !UNITY_EDITOR
-        AndroidJavaClass permissionManager = new AndroidJavaClass (PackageClassName);
+    static UniAndroidPermission Instance {
+        get
+        {
+            if(instance == null)
+            {
+                var go = new GameObject("UniAndroidPermission");
+                instance = go.AddComponent<UniAndroidPermission>();
+            }
+
+            return instance;
+        }
+    }
+
+    string GetPermittionStr(AndroidPermission permission){
+        return "android.permission." + permission.ToString ();
+    }
+
+    bool IsPermittedInternal(AndroidPermission permission){
         return permissionManager.CallStatic<bool> ("hasPermission", GetPermittionStr(permission));
-#else        
-        return true;
-#endif
     }
 
-    public static void RequestPremission(AndroidPermission permission, Action onPermit = null, Action notPermit = null){
-#if !UNITY_EDITOR
-        AndroidJavaClass permissionManager = new AndroidJavaClass (PackageClassName);
+    void RequestPremissionInternal(AndroidPermission permission, Action onPermit, Action notPermit){
         permissionManager.CallStatic("requestPermission", GetPermittionStr(permission));
         permitCallBack = onPermit;
         notPermitCallBack = notPermit;
-#endif
     }
 
-    private static string GetPermittionStr(AndroidPermission permittion){
-        return "android.permission." + permittion.ToString ();
-    }
-
-    private void OnPermit(){
+    void OnPermit(){
         if (permitCallBack != null) {
             permitCallBack ();
         }
         ResetCallBacks ();
     }
 
-    private void NotPermit(){
+    void NotPermit(){
         if (notPermitCallBack != null) {
             notPermitCallBack ();
         }
         ResetCallBacks ();
     }
 
-    private void ResetCallBacks(){
+    void ResetCallBacks(){
         notPermitCallBack = null;
         permitCallBack = null;
+    }
+
+    public static bool IsPermitted(AndroidPermission permission){
+#if !UNITY_EDITOR
+        return Instance.IsPermittedInternal(permission);
+#else
+        return true;
+#endif
+    }
+
+    public static void RequestPremission(AndroidPermission permission, Action onPermit = null, Action notPermit = null){
+#if !UNITY_EDITOR
+        Instance.RequestPremissionInternal(permission, onPermit, notPermit);
+#else
+        Debug.LogWarning("UniAndroidPermission works only Android Devices.");
+#endif
     }
 }
 
